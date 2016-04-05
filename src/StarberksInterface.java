@@ -244,22 +244,42 @@ public class StarberksInterface {
 		return 0;
 	}
 	
-	//TODO: complete the method
 	private void showProductData() {
-		if (store.AvailableProducts() == 3) {
-			
-		} else {
+		if (store.AvailableProducts() >= 3) {
 			System.out.println("There is no Product Data available");
+		} else {
+			boolean exitProductDataLoop = false;
+			while (!exitProductDataLoop) {
+				System.out.print("Enter product name: ");
+				String pName = scanner.next().toLowerCase();
+				int productNumber = store.FindProduct(pName);
+
+				if (productNumber <= 0) {
+					System.out.println("Could not find product \"" + pName +"\", please try again.");
+				} else {
+					outputProductData(productNumber);
+				}
+			}
 		}
+	}
+
+	private void outputProductData(int productNumber) {
+		System.out.println("Data for product \"" + store.getProductName(productNumber) + "\"");
+		System.out.println("----------------------------");
+		System.out.println("Demand Rate: " + store.getDemandRate(productNumber));
+		System.out.println("Setup Cost: " + store.getSetupCost(productNumber));
+		System.out.println("Unit Cost: " + store.getUnitCost(productNumber));
+		System.out.println("Inventory Cost: " + store.getInventoryCost(productNumber));
+		System.out.println("Selling Price: " + store.getSellingPrice(productNumber));
 		
 	}
 
 	//TODO: complete the method
 	private void showReplentishStrategy() {
-		if (store.AvailableProducts() == 3) {
-			
-		} else {
+		if (store.AvailableProducts() >= 3) {
 			System.out.println("There is no Product Data available");
+		} else {
+			
 		}
 	}
 
