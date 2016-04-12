@@ -111,8 +111,6 @@ public class Store {
 			product2 = null;
 		} else if (number == 3) {
 			product3 = null;
-		} else {
-			return;
 		}
 	}
 
@@ -247,7 +245,7 @@ public class Store {
 			product3.setSellingPrice(sellingPrice);
 		}
 	}
-	
+
 	public double getProfit(int product) {
 		if (product == 1) {
 			return product1.getProfit();
@@ -259,7 +257,7 @@ public class Store {
 			return -1;
 		}
 	}
-	
+
 	public void setProductProfit(int product, double profit) {
 		if (product == 1) {
 			product1.setProfit(profit);
@@ -269,37 +267,71 @@ public class Store {
 			product3.setProfit(profit);
 		}
 	}
-	
+
+	/**
+	 * calculates and returns the most profitable product that is available
+	 * 
+	 * @return the most profitable product or -1 if no product is found or if
+	 *         profit has not been calculated
+	 */
 	public int getMostProfitableProduct() {
+		return getMostProfitableProduct(-1);
+	}
+
+	/**
+	 * calculates and returns the most profitable product that is available.
+	 * Should be used in a loop to gain the most profitable products. if used
+	 * without a loop, the first product that is the most profitable product is
+	 * returned
+	 * 
+	 * @param lastProduct
+	 *            the product that was the most profitable last run-through or
+	 *            -1 for no product
+	 * @return the most profitable product or -1 if no product is more
+	 *         profitable then the last run-through or if profit has not been
+	 *         calculated or no product is found
+	 */
+	public int getMostProfitableProduct(int lastProduct) {
 		int mostProfitableProduct = -1;
 		if (availableProducts() >= AMOUNT_OF_PRODUCTS) {
 			return -1;
 		} else {
 			double mostProfitableAmount = Integer.MIN_VALUE;
+			double previousMostProfitableAmount = Integer.MIN_VALUE;
 			if (product1 != null && product1.isProfitCalculated()) {
-				mostProfitableAmount = product1.getProfit();
-				mostProfitableProduct = 1;
-			}
-			if (product2 != null && product2.isProfitCalculated()) {
-				if (product2.getProfit() > mostProfitableAmount) {
-					mostProfitableAmount = product2.getProfit();
-					mostProfitableProduct = 2;
+				if (lastProduct < 1) {
+					mostProfitableAmount = product1.getProfit();
+					mostProfitableProduct = 1;
+				} else if (lastProduct == 1) {
+					previousMostProfitableAmount = product1.getProfit();
 				}
 			}
-			if (product3 != null && product3.isProfitCalculated()) {
-				if (product3.getProfit() > mostProfitableAmount) {
-					mostProfitableAmount = product3.getProfit();
-					mostProfitableProduct = 3;
+			if (product2 != null && product2.isProfitCalculated()) {
+				if (lastProduct < 2) {
+					if (product2.getProfit() > mostProfitableAmount || product2.getProfit() == previousMostProfitableAmount) {
+						mostProfitableAmount = product2.getProfit();
+						mostProfitableProduct = 2;
+					}
+				} else if (lastProduct == 2) {
+					previousMostProfitableAmount = product2.getProfit();
+				}
+			}
+			if (product3 != null && product3.isProfitCalculated() && lastProduct < 3) {
+				if (lastProduct < 3) {
+					if (product3.getProfit() > mostProfitableAmount || product3.getProfit() == previousMostProfitableAmount) {
+						mostProfitableAmount = product3.getProfit();
+						mostProfitableProduct = 3;
+					}
 				}
 			}
 		}
-		
+
 		return mostProfitableProduct;
 	}
-	
+
 	/**
-	 * Calculates the Economic Order Quantity (EOQ) for a product. 
-	 * Assumes product not null
+	 * Calculates the Economic Order Quantity (EOQ) for a product. Assumes
+	 * product not null
 	 * 
 	 * @param product
 	 *            the product number to calculate
@@ -312,7 +344,7 @@ public class Store {
 		double inventoryCost = getInventoryCost(product);
 
 		quantity = (int) Math.ceil(Math.sqrt((2 * setupCost * demandRate) / inventoryCost));
-		
+		System.out.println("EOQ: " + quantity);
 		return quantity;
 	}
 }

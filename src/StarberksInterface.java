@@ -1,4 +1,5 @@
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.Scanner;
 
 /*
@@ -6,6 +7,7 @@ Creates the interface (you can use TerminalIO or GUI, your choice).
 It must have one Store object as instance variable.
 This class will act as the interface for the program, meaning it will receive all input from the user, display all output, and check for invalid inputs & display all error messages. 
  */
+
 public class StarberksInterface {
 	Scanner scanner = new Scanner(System.in);
 	private Store store;
@@ -164,10 +166,8 @@ public class StarberksInterface {
 							productNumber = store.createProduct(3, pName);
 							editProductData(productNumber, false);
 							break;
-						case 4:
-							exitProductDataLoop = true;
-							break;
 					}
+					exitProductDataLoop = true;
 				}
 			}
 		}
@@ -215,19 +215,30 @@ public class StarberksInterface {
 
 	private void editProductData(int product, boolean outputCurrentValues) {
 		if (product > 0) {
-			int demandRate = outputCurrentValues ? store.getDemandRate(product) : -1;
-			double setupCost = outputCurrentValues ? store.getSetupCost(product) : -1;
-			double unitCost = outputCurrentValues ? store.getUnitCost(product) : -1;
-			double inventoryCost = outputCurrentValues ? store.getInventoryCost(product) : -1;
-			double sellingPrice = outputCurrentValues ? store.getSellingPrice(product) : -1;
-
-			System.out.println("Editing product: " + store.getProductName(product));
-
-			store.setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
-			store.setSetupCost(product, getValidDouble("Setup Cost", setupCost));
-			store.setUnitCost(product, getValidDouble("Unit Cost", unitCost));
-			store.setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
-			store.setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
+			boolean validEOQ = false;
+			do {
+				int demandRate = outputCurrentValues ? store.getDemandRate(product) : -1;
+				double setupCost = outputCurrentValues ? store.getSetupCost(product) : -1;
+				double unitCost = outputCurrentValues ? store.getUnitCost(product) : -1;
+				double inventoryCost = outputCurrentValues ? store.getInventoryCost(product) : -1;
+				double sellingPrice = outputCurrentValues ? store.getSellingPrice(product) : -1;
+				
+				System.out.println("Editing product: " + store.getProductName(product));
+				
+				store.setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
+				store.setSetupCost(product, getValidDouble("Setup Cost", setupCost));
+				store.setUnitCost(product, getValidDouble("Unit Cost", unitCost));
+				store.setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
+				store.setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
+				
+				if (store.calculateEOQ(product) > store.getDemandRate(product)){
+					validEOQ = true;
+				} else {
+					System.out.println("It is not possible to have a replacement strategy with the inputs given. Please enter the data again.");
+				}
+				
+			} while (!validEOQ);
+			
 		}
 	}
 
@@ -381,15 +392,22 @@ public class StarberksInterface {
 		
 		double profit = (demandRate * weeks * store.getSellingPrice(productNumber)) - totalCost;
 		store.setProductProfit(productNumber, profit);
-		System.out.println("Profit: $" + profit);
+		System.out.println("Profit: $" + (new DecimalFormat("#.##")).format(profit));
 		System.out.println("Total Order: " + totalOrder);
 		System.out.println("EOQ: " + EOQ);
-		
-		try {
-			System.in.read();
-		} catch (IOException e) {
-			e.printStackTrace();
+		if (profit >= 0) {
+			System.out.println("Press Enter to Continue...");
+			
+			try {
+				System.in.read();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}			
+		} else {
+			System.out.println("Profit was negative, please re-enter product data.");
+			editProductData(productNumber, true);
 		}
+		
 	}
 
 	/**
@@ -401,13 +419,17 @@ public class StarberksInterface {
 
 		System.out.println("Thank you for using our program!");
 
-		//TODO: make this work
+		//get the most
 		int mostProfitableProduct = store.getMostProfitableProduct();
-		if (mostProfitableProduct > 0) {
+		while (mostProfitableProduct > 0) {
 			String productName = store.getProductName(mostProfitableProduct);
 			double profit = store.getProfit(mostProfitableProduct);
-			System.out.println(productName + " was the most profitable product with $" + profit);
+			System.out.println(productName + " was the most profitable product with $" + (new DecimalFormat("#.##")).format(profit));
+			
+			//check for another round
+			mostProfitableProduct = store.getMostProfitableProduct(mostProfitableProduct);
 		}
+			
 		
 	}
 

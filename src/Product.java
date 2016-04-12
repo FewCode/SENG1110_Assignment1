@@ -29,6 +29,7 @@ public class Product {
 
 	public void setProfit(double profit) {
 		this.profit = profit;
+		this.profitCalculated = true;
 	}
 
 	public int getDemandRate() {
