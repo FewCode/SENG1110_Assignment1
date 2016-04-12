@@ -12,12 +12,23 @@ public class Product {
 	private double inventoryCost;
 	private double sellingPrice;
 	
-	public Product() {
-		//TODO: find out why 2 constructors are needed
-	}
+	private boolean profitCalculated = false;
+	private double profit;
 	
 	public Product(String name) {
 		this.name = name;
+	}
+
+	public double getProfit() {
+		return profit;
+	}
+
+	public boolean isProfitCalculated() {
+		return profitCalculated;
+	}
+
+	public void setProfit(double profit) {
+		this.profit = profit;
 	}
 
 	public int getDemandRate() {
