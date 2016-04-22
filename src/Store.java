@@ -1,7 +1,10 @@
-/*
-	It must have three Product objects as instance variables: product1, product2 and product3.
- 	It must use the Product class’s methods for accessing and modifying the data in a product object.
-
+/**
+ * @author Alexander Brown
+ * @studentID 3260691
+ * @date 22/04/2016
+ * @file Store.java
+ * Controls use of Product Objects and performs calculations 
+ * @see Product
  */
 public class Store {
 
@@ -344,7 +347,6 @@ public class Store {
 		double inventoryCost = getInventoryCost(product);
 
 		quantity = (int) Math.ceil(Math.sqrt((2 * setupCost * demandRate) / inventoryCost));
-		System.out.println("EOQ: " + quantity);
 		return quantity;
 	}
 }

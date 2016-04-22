@@ -1,7 +1,9 @@
-/*
-	The file name needs to be Product.java
-	This class will hold the required instance data for a product and it will have suitable methods to access and modify the data for a product.
-	This class should have two constructors.
+/**
+ * @author Alexander Brown
+ * @studentID 3260691
+ * @date 22/04/2016
+ * @file Product.java
+ * Object that holds data for an item.
  */
 public class Product {
 	

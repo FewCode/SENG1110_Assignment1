@@ -1,13 +1,15 @@
 import java.io.IOException;
 import java.text.DecimalFormat;
+import java.util.InputMismatchException;
 import java.util.Scanner;
 
-/*
-Creates the interface (you can use TerminalIO or GUI, your choice).
-It must have one Store object as instance variable.
-This class will act as the interface for the program, meaning it will receive all input from the user, display all output, and check for invalid inputs & display all error messages. 
+/**
+ * @author Alexander Brown
+ * @studentID 3260691
+ * @date 22/04/2016
+ * @file StarberksInterface.java
+ * Interface for the program. Controls flow and deals with Input and Output
  */
-
 public class StarberksInterface {
 	Scanner scanner = new Scanner(System.in);
 	private Store store;
@@ -217,6 +219,7 @@ public class StarberksInterface {
 		if (product > 0) {
 			boolean validEOQ = false;
 			do {
+				//if we are outputting data. get the default value, set it so we can use it in a prompt later. If not, just set to -1
 				int demandRate = outputCurrentValues ? store.getDemandRate(product) : -1;
 				double setupCost = outputCurrentValues ? store.getSetupCost(product) : -1;
 				double unitCost = outputCurrentValues ? store.getUnitCost(product) : -1;
@@ -225,12 +228,14 @@ public class StarberksInterface {
 				
 				System.out.println("Editing product: " + store.getProductName(product));
 				
+				//get data from users
 				store.setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
 				store.setSetupCost(product, getValidDouble("Setup Cost", setupCost));
 				store.setUnitCost(product, getValidDouble("Unit Cost", unitCost));
 				store.setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
 				store.setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
 				
+				//validate EOQ
 				if (store.calculateEOQ(product) > store.getDemandRate(product)){
 					validEOQ = true;
 				} else {
@@ -268,14 +273,19 @@ public class StarberksInterface {
 			System.out.print(output);
 
 			// get the input
-			Double input = scanner.nextDouble();
-
-			// validate input
-			if (input >= 0) {
-				return input;
+			if (scanner.hasNextDouble()) {
+				Double input = scanner.nextDouble();
+				// validate input
+				if (input >= 0) {
+					return input;
+				} else {
+					System.out.println(input + " is not a valid input!");
+				}
 			} else {
-				System.out.println(input + " is not a valid input!");
+				System.out.println("Please input a valid number.");
+				scanner.next();
 			}
+			
 		}
 		return 0;
 	}
