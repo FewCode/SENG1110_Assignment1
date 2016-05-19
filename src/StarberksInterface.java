@@ -3,6 +3,9 @@ import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
+
+//TODO: make sure comments
+//TODO: scanner use must use "nextLine" rather than "nextInt" or "nextString"
 /**
  * @author Alexander Brown
  * @studentID 3260691
@@ -12,6 +15,9 @@ import java.util.Scanner;
  */
 public class StarberksInterface {
 	Scanner scanner = new Scanner(System.in);
+	private Store[] stores;
+	
+	@Deprecated
 	private Store store;
 	boolean exitProgram = false;
 
@@ -20,31 +26,63 @@ public class StarberksInterface {
 		System.out.println("Welcome!");
 
 		// initiate program
-		store = new Store();
+		stores = new Store[2];
+		stores[0] = new Store("callaghan");
+		stores[1] = new Store("lambton");
+		
+		store = new Store("test");
 
 		while (!exitProgram) {
 
 			// show the menu to the user
 			displayMenu();
 
-			switch (waitForInput(4, true)) {
+			switch (waitForInput(5, true)){
 				case 1:
-					inputProductData();
+					runSecondTier(chooseStore());
 					break;
 				case 2:
-					showProductData();
+					//TODO: Implement - Display Stores
 					break;
 				case 3:
-					showReplenishStrategy();
+					//TODO: Implement - Open
 					break;
 				case 4:
+					//TODO: Implement - Save
+					break;
+				case 5:
 					exitProgram();
 					break;
+					
 			}
-
 		}
 	}
 
+	private void runSecondTier(int storeToUse){
+		boolean exitStore = false;
+		while (!exitStore) {
+			displayStoreMenu();
+			//TODO: implement menu
+			switch (waitForInput(5, true)) {
+				case 1:
+					inputProductData(storeToUse);
+					break;
+				case 2:
+					deleteProduct(storeToUse);
+					break;
+				case 3:
+					showProductData(storeToUse);
+					break;
+				case 4:
+					showAllProductData(storeToUse);
+					break;
+				case 5:
+					exitStore = true;
+					break;
+			}
+		}
+	}
+	
 	/**
 	 * @param options
 	 *            - the amount of options that you wish to display with a
@@ -54,7 +92,7 @@ public class StarberksInterface {
 	 */
 	private int waitForInput(int options, boolean exitClause) {
 		System.out.print("Option: ");
-		String input = scanner.next();
+		String input = scanner.nextLine();
 		System.out.println("you have chosen \"" + input + "\"");
 
 		int chosenNumber = -1;
@@ -124,60 +162,34 @@ public class StarberksInterface {
 		}
 	}
 
-	private void inputProductData() {
+	private void inputProductData(int storeToUse) {
 		boolean exitProductDataLoop = false;
 		while (!exitProductDataLoop) {
 			System.out.print("Enter product name: ");
-			String pName = scanner.next().toLowerCase();
-
+			String pName = scanner.nextLine().toLowerCase();
+			System.out.println("User typed: \"" + pName + "\"");
 			if (pName.length() < 3 || pName.length() > 10) {
 				System.out.println("\"" + pName + "\" has " + pName.length() + " characters. The product name must have between 3 and 10 characters.");
 			} else {
-				int productNumber = store.findProduct(pName);
-				if (productNumber > 0) {
+				int productNumber = stores[storeToUse].findProduct(pName);
+				if (productNumber >= 0) {
 					// found product, start rename or edit procedure
 					System.out.print("Found product \"" + pName + "\". ");
-					EditOrRenameProduct(productNumber);
+					EditOrRenameProduct(storeToUse, productNumber);
 
 					exitProductDataLoop = true;
-				} else if (store.availableProducts() > 0) {
-					// could not find product, add new product
-					productNumber = store.createProduct(store.nextEmptyProduct(), pName);
-					editProductData(productNumber, false);
-					exitProductDataLoop = true;
 				} else {
-					// No more room for products, remove product or main menu
-					System.out.println("There is no more room in the product database, what would you like to do?");
-					System.out.println("1.\tRemove product 1: " + store.getProductName(1));
-					System.out.println("2.\tRemove product 2: " + store.getProductName(2));
-					System.out.println("3.\tRemove product 3: " + store.getProductName(3));
-					System.out.println("4.\tBack to Main Menu");
-					switch (waitForInput(4, true)) {
-						case 1:
-							store.removeProduct(1);
-							productNumber = store.createProduct(1, pName);
-							editProductData(productNumber, false);
-							break;
-						case 2:
-							store.removeProduct(2);
-							productNumber = store.createProduct(2, pName);
-							editProductData(productNumber, false);
-							break;
-						case 3:
-							store.removeProduct(3);
-							productNumber = store.createProduct(3, pName);
-							editProductData(productNumber, false);
-							break;
-					}
+					// could not find product, add new product
+					productNumber = stores[storeToUse].addProduct(pName);
+					editProductData(storeToUse, productNumber, false);
 					exitProductDataLoop = true;
-				}
+				} 
 			}
 		}
 	}
 
-	private void EditOrRenameProduct(int productNumber) {
+	private void EditOrRenameProduct(int storeToUse, int productNumber) {
 		boolean editOrRename = true;
-
 		while (editOrRename) {
 			System.out.println("How would you like to edit the product?");
 			System.out.println("1.\tEdit Name");
@@ -190,12 +202,12 @@ public class StarberksInterface {
 					boolean validInput = false;
 					while (!validInput) {
 						System.out.print("Enter new product name: ");
-						String pName = scanner.next().toLowerCase();
+						String pName = scanner.nextLine().toLowerCase();
 
 						if (pName.length() < 3 || pName.length() > 10) {
 							System.out.println("\"" + pName + "\" has " + pName.length() + " characters. The product name must have between 3 and 10 characters.");
 						} else {
-							store.setProductName(productNumber, pName);
+							stores[storeToUse].setProductName(productNumber, pName);
 							validInput = true;
 						}
 					}
@@ -203,7 +215,7 @@ public class StarberksInterface {
 					break;
 				case 2:
 					// edit data
-					editProductData(productNumber, true);
+					editProductData(storeToUse, productNumber, true);
 					editOrRename = false;
 					break;
 				case 3:
@@ -215,28 +227,28 @@ public class StarberksInterface {
 		}
 	}
 
-	private void editProductData(int product, boolean outputCurrentValues) {
-		if (product > 0) {
+	private void editProductData(int storeToUse, int product, boolean outputCurrentValues) {
+		if (product >= 0) {
 			boolean validEOQ = false;
 			do {
 				//if we are outputting data. get the default value, set it so we can use it in a prompt later. If not, just set to -1
-				int demandRate = outputCurrentValues ? store.getDemandRate(product) : -1;
-				double setupCost = outputCurrentValues ? store.getSetupCost(product) : -1;
-				double unitCost = outputCurrentValues ? store.getUnitCost(product) : -1;
-				double inventoryCost = outputCurrentValues ? store.getInventoryCost(product) : -1;
-				double sellingPrice = outputCurrentValues ? store.getSellingPrice(product) : -1;
+				int demandRate = outputCurrentValues ? stores[storeToUse].getDemandRate(product) : -1;
+				double setupCost = outputCurrentValues ? stores[storeToUse].getSetupCost(product) : -1;
+				double unitCost = outputCurrentValues ? stores[storeToUse].getUnitCost(product) : -1;
+				double inventoryCost = outputCurrentValues ? stores[storeToUse].getInventoryCost(product) : -1;
+				double sellingPrice = outputCurrentValues ? stores[storeToUse].getSellingPrice(product) : -1;
 				
-				System.out.println("Editing product: " + store.getProductName(product));
+				System.out.println("Editing product: " + stores[storeToUse].getProductName(product));
 				
 				//get data from users
-				store.setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
-				store.setSetupCost(product, getValidDouble("Setup Cost", setupCost));
-				store.setUnitCost(product, getValidDouble("Unit Cost", unitCost));
-				store.setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
-				store.setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
+				stores[storeToUse].setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
+				stores[storeToUse].setSetupCost(product, getValidDouble("Setup Cost", setupCost));
+				stores[storeToUse].setUnitCost(product, getValidDouble("Unit Cost", unitCost));
+				stores[storeToUse].setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
+				stores[storeToUse].setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
 				
 				//validate EOQ
-				if (store.calculateEOQ(product) > store.getDemandRate(product)){
+				if (stores[storeToUse].calculateEOQ(product) > stores[storeToUse].getDemandRate(product)){
 					validEOQ = true;
 				} else {
 					System.out.println("It is not possible to have a replacement strategy with the inputs given. Please enter the data again.");
@@ -247,6 +259,26 @@ public class StarberksInterface {
 		}
 	}
 
+	
+	private void deleteProduct(int storeToUse) {
+		if (stores[storeToUse].numberOfProducts() <= 0) {
+			System.out.println("No products");
+		} else {
+			System.out.println("Products: " + stores[storeToUse].getProductNames());
+			System.out.print("Please input the product name you want to delete: ");
+			
+			String input = scanner.nextLine().toLowerCase();
+			int product = stores[storeToUse].findProduct(input);
+			if (product >= 0) {
+				
+				stores[storeToUse].removeProduct(product);
+				System.out.println("The product was deleted");
+			} else {
+				System.out.println("The product does not exist");
+			}
+		}
+	}
+	
 	/**
 	 * Gets a valid double from the user. The method will loop until this is
 	 * achieved
@@ -273,17 +305,18 @@ public class StarberksInterface {
 			System.out.print(output);
 
 			// get the input
-			if (scanner.hasNextDouble()) {
-				Double input = scanner.nextDouble();
+			String userInput = scanner.nextLine();
+			
+			try {
+				Double input = Double.parseDouble(userInput);
 				// validate input
 				if (input >= 0) {
 					return input;
 				} else {
 					System.out.println(input + " is not a valid input!");
 				}
-			} else {
+			} catch (Exception e) {
 				System.out.println("Please input a valid number.");
-				scanner.next();
 			}
 			
 		}
@@ -293,24 +326,26 @@ public class StarberksInterface {
 	/**
 	 * walks through the process of showing product data to the user
 	 */
-	private void showProductData() {
+	private void showProductData(int storeToUse) {
 		// make sure there are products to show
-		if (store.availableProducts() >= store.AMOUNT_OF_PRODUCTS) {
-			System.out.println("There is no Product Data available");
+		if (stores[storeToUse].numberOfProducts() <= 0) {
+			System.out.println("No products");
 		} else {
 			boolean exitProductDataLoop = false;
 			while (!exitProductDataLoop) {
-
-				// prompt the user for data then retrieve it
-				System.out.print("Enter product name: ");
-				String pName = scanner.next().toLowerCase();
+				System.out.println("Products: " + stores[storeToUse].getProductNames());
+				System.out.print("Please input the product name you want to display: ");
+				
+				String pName = scanner.nextLine().toLowerCase();
 
 				// validate product
-				int productNumber = store.findProduct(pName);
-				if (productNumber <= 0) {
+				int productNumber = stores[storeToUse].findProduct(pName);
+				if (productNumber < 0) {
 					System.out.println("Could not find product \"" + pName + "\", please try again.");
 				} else {
-					outputProductData(productNumber);
+					outputProductData(storeToUse, productNumber);
+					
+					showReplenishStrategy(storeToUse, productNumber);
 					exitProductDataLoop = true;
 				}
 			}
@@ -323,34 +358,48 @@ public class StarberksInterface {
 	 * @param productNumber
 	 *            the product to find data for
 	 */
-	private void outputProductData(int productNumber) {
-		System.out.println("Data for product \"" + store.getProductName(productNumber) + "\"");
+	private void outputProductData(int storeToUse, int productNumber) {
+		System.out.println("Data for product \"" + stores[storeToUse].getProductName(productNumber) + "\"");
 		System.out.println("----------------------------");
-		System.out.println("Demand Rate: " + store.getDemandRate(productNumber));
-		System.out.println("Setup Cost: " + store.getSetupCost(productNumber));
-		System.out.println("Unit Cost: " + store.getUnitCost(productNumber));
-		System.out.println("Inventory Cost: " + store.getInventoryCost(productNumber));
-		System.out.println("Selling Price: " + store.getSellingPrice(productNumber));
+		System.out.println("Demand Rate: " + stores[storeToUse].getDemandRate(productNumber));
+		System.out.println("Setup Cost: " + stores[storeToUse].getSetupCost(productNumber));
+		System.out.println("Unit Cost: " + stores[storeToUse].getUnitCost(productNumber));
+		System.out.println("Inventory Cost: " + stores[storeToUse].getInventoryCost(productNumber));
+		System.out.println("Selling Price: " + stores[storeToUse].getSellingPrice(productNumber));
 
 	}
+	
+	private void showAllProductData(int storeToUse) {
+		//Display all products in a table
+		
+		
+		
+	}
 
-	private void showReplenishStrategy() {
-		if (store.availableProducts() >= store.AMOUNT_OF_PRODUCTS) {
+	private void showReplenishStrategy(int storeToUse, int product) {
+		//TODO: test this lots
+		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("There is no Product Data available");
 		} else {
 			boolean exitReplenishmentStrategyLoop = false;
 			while (!exitReplenishmentStrategyLoop) {
 
 				// prompt the user for data then retrieve it
-				System.out.print("Enter product name: ");
-				String pName = scanner.next().toLowerCase();
-
-				// validate product
-				int productNumber = store.findProduct(pName);
-				if (productNumber <= 0) {
-					System.out.println("Could not find product \"" + pName + "\", please try again.");
-				} else {				
-					replenishStrategy(productNumber, (int) getValidDouble("Weeks", -1));
+				System.out.print("Would you like to see the replacement strategy for this product? ");
+				String pName = scanner.nextLine().toLowerCase();
+				
+				//TODO: own method?
+				boolean show = false;
+				switch (pName) {
+					case "1":
+					case "yes":
+					case "affirmitive": //TODO: spelling?
+						show = true;
+				}
+				
+				if (show) {
+					//TODO: make this work
+					replenishStrategy(storeToUse, product, (int) getValidDouble("Weeks", -1));
 					exitReplenishmentStrategyLoop = true;
 				}
 			}
@@ -362,7 +411,7 @@ public class StarberksInterface {
 	 * @param productNumber the product to use
 	 * @param weeks the number of weeks this should continue
 	 */
-	private void replenishStrategy(int productNumber, int weeks) {
+	private void replenishStrategy(int storeToUse, int productNumber, int weeks) {
 		int EOQ = store.calculateEOQ(productNumber);
 		int demandRate = store.getDemandRate(productNumber);
 		int inventory = 0;
@@ -415,7 +464,7 @@ public class StarberksInterface {
 			}			
 		} else {
 			System.out.println("Profit was negative, please re-enter product data.");
-			editProductData(productNumber, true);
+			//editProductData(productNumber, true);
 		}
 		
 	}
@@ -442,15 +491,52 @@ public class StarberksInterface {
 			
 		
 	}
-
+	
+	private int chooseStore(){
+		boolean validInput = false;
+		int chosenStore = -1;
+		
+		//start loop to get user input
+		while (!validInput) {
+			
+			//ask the user for the store
+			System.out.print("Enter store to chose {" + stores[0].NAME + "," + stores[1].NAME + "}: ");
+			String storeToPick = scanner.nextLine().toLowerCase();
+			
+			//validate input
+			if (stores[0].NAME.equals(storeToPick)) {
+				chosenStore = 0;
+				validInput = true;
+			} else if (stores[1].NAME.equals(storeToPick)) {
+				chosenStore = 1;
+				validInput = true;
+			} else {
+				//invalid input - error
+				System.out.println("Please enter a valid store.");
+			}
+		}
+		
+		//return the store that the user chose
+		return chosenStore;
+	}
+	
 	/**
 	 * Displays the main menu to the user when called
 	 */
 	private void displayMenu() {
-		System.out.println("1.\tInput data for one product");
-		System.out.println("2.\tShow data from one product");
-		System.out.println("3.\tShow the replentishment strategy for a product");
-		System.out.println("4.\tExit program");
+		System.out.println("1.\tChoose Store");
+		System.out.println("2.\tDisplay stores");
+		System.out.println("3.\tOpen");
+		System.out.println("4.\tSave");
+		System.out.println("5.\tExit");
+	}
+	
+	private void displayStoreMenu() {
+		System.out.println("1.\tAdd/Edit product");
+		System.out.println("2.\tDelete product");
+		System.out.println("3.\tDisplay product");
+		System.out.println("4.\tDisplay all products");
+		System.out.println("5.\tExit Store");
 	}
 
 	public static void main(String[] args) {

@@ -1,3 +1,4 @@
+//TODO: update javaDoc
 /**
  * @author Alexander Brown
  * @studentID 3260691
@@ -8,52 +9,32 @@
  */
 public class Store {
 
-	public final int AMOUNT_OF_PRODUCTS = 3;
+	public final int MINIMUM_PRODUCTS = 3;
+	public final String NAME;
+	
+	private Product[] products;
 
-	private Product product1;
-	private Product product2;
-	private Product product3;
-
-	/**
-	 * Cycles through products to count how many products are available to
-	 * create
-	 * 
-	 * @return the amount of products that can be created
-	 */
-	public int availableProducts() {
+	public enum SortType{
+		NAME, DEMAND_RATE
+	}
+	
+	public Store(String name) {
+		this.NAME = name.toLowerCase();
+		products = new Product[MINIMUM_PRODUCTS];
+	}
+	
+	public int numberOfProducts(){
 		int amount = 0;
-
-		if (product1 == null) {
-			amount++;
+		
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null) {
+				amount++;
+			}
 		}
-		if (product2 == null) {
-			amount++;
-		}
-		if (product3 == null) {
-			amount++;
-		}
-
+		
 		return amount;
 	}
 
-	/**
-	 * Cycles through the products to see what the next available product to
-	 * create is.
-	 * 
-	 * @return the next product that can be created
-	 */
-	public int nextEmptyProduct() {
-		if (product1 == null) {
-			return 1;
-		}
-		if (product2 == null) {
-			return 2;
-		}
-		if (product3 == null) {
-			return 3;
-		}
-		return 0;
-	}
 
 	/**
 	 * Searches the products to find if there is a matching name (case
@@ -61,19 +42,15 @@ public class Store {
 	 * 
 	 * @param name
 	 *            the name of the product to search for
-	 * @return the product number or 0 if there is no matching product
+	 * @return the product number or -1 if there is no matching product
 	 */
 	public int findProduct(String name) {
-		if (product1 != null && product1.getName().equals(name)) {
-			return 1;
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null && products[i].getName().equals(name)) {
+				return i;
+			}
 		}
-		if (product2 != null && product2.getName().equals(name)) {
-			return 2;
-		}
-		if (product3 != null && product3.getName().equals(name)) {
-			return 3;
-		}
-		return 0;
+		return -1;
 	}
 
 	/**
@@ -86,19 +63,22 @@ public class Store {
 	 *            the name of the new product
 	 * @return the slot of the product used or -1 if an error
 	 */
-	public int createProduct(int number, String name) {
-		if (number == 1) {
-			product1 = new Product(name);
-			return 1;
-		} else if (number == 2) {
-			product2 = new Product(name);
-			return 2;
-		} else if (number == 3) {
-			product3 = new Product(name);
-			return 3;
-		} else {
-			return -1;
+	public int addProduct(String name) {
+		if (numberOfProducts() == products.length) {
+			resizeProductsArray(products.length + 1);
 		}
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] == null) {
+				products[i] = new Product(name);
+				return i;
+			}
+		}
+		return -1;
+	}
+
+	private void resizeProductsArray(int length) {
+		// TODO resize array to size given
+		
 	}
 
 	/**
@@ -108,166 +88,107 @@ public class Store {
 	 *            the slot to remove the product
 	 */
 	public void removeProduct(int number) {
-		if (number == 1) {
-			product1 = null;
-		} else if (number == 2) {
-			product2 = null;
-		} else if (number == 3) {
-			product3 = null;
+		//TODO: find a better way. Possible of resizing array if greater than the minimum size
+		if (number >= 0 && number < products.length) {
+			products[number] = null;
 		}
 	}
 
 	public String getProductName(int product) {
-		if (product == 1) {
-			return product1.getName();
-		} else if (product == 2) {
-			return product2.getName();
-		} else if (product == 3) {
-			return product3.getName();
+		if (product >= 0 && product < products.length) {
+			return products[product].getName();
 		} else {
 			return "INVALID PRODUCT";
 		}
 	}
 
 	public void setProductName(int product, String name) {
-		if (product == 1) {
-			product1.setName(name);
-		} else if (product == 2) {
-			product2.setName(name);
-		} else if (product == 3) {
-			product3.setName(name);
+		if (product >= 0 && product < products.length) {
+			products[product].setName(name);
 		}
 	}
 
 	public int getDemandRate(int product) {
-		if (product == 1) {
-			return product1.getDemandRate();
-		} else if (product == 2) {
-			return product2.getDemandRate();
-		} else if (product == 3) {
-			return product3.getDemandRate();
+		if (product >= 0 && product < products.length) {
+			return products[product].getDemandRate();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setDemandRate(int product, int demandRate) {
-		if (product == 1) {
-			product1.setDemandRate(demandRate);
-		} else if (product == 2) {
-			product2.setDemandRate(demandRate);
-		} else if (product == 3) {
-			product3.setDemandRate(demandRate);
+		if (product >= 0 && product < products.length) {
+			products[product].setDemandRate(demandRate);
 		}
 	}
 
 	public double getSetupCost(int product) {
-		if (product == 1) {
-			return product1.getSetupCost();
-		} else if (product == 2) {
-			return product2.getSetupCost();
-		} else if (product == 3) {
-			return product3.getSetupCost();
+		if (product >= 0 && product < products.length) {
+			return products[product].getSetupCost();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setSetupCost(int product, double setupCost) {
-		if (product == 1) {
-			product1.setSetupCost(setupCost);
-		} else if (product == 2) {
-			product2.setSetupCost(setupCost);
-		} else if (product == 3) {
-			product3.setSetupCost(setupCost);
+		if (product >= 0 && product < products.length) {
+			products[product].setSetupCost(setupCost);
 		}
 	}
 
 	public double getUnitCost(int product) {
-		if (product == 1) {
-			return product1.getUnitCost();
-		} else if (product == 2) {
-			return product2.getUnitCost();
-		} else if (product == 3) {
-			return product3.getUnitCost();
+		if (product >= 0 && product < products.length) {
+			return products[product].getUnitCost();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setUnitCost(int product, double unitCost) {
-		if (product == 1) {
-			product1.setUnitCost(unitCost);
-		} else if (product == 2) {
-			product2.setUnitCost(unitCost);
-		} else if (product == 3) {
-			product3.setUnitCost(unitCost);
+		if (product >= 0 && product < products.length) {
+			products[product].setUnitCost(unitCost);
 		}
 	}
 
 	public double getInventoryCost(int product) {
-		if (product == 1) {
-			return product1.getInventoryCost();
-		} else if (product == 2) {
-			return product2.getInventoryCost();
-		} else if (product == 3) {
-			return product3.getInventoryCost();
+		if (product >= 0 && product < products.length) {
+			return products[product].getInventoryCost();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setInventoryCost(int product, double inventoryCost) {
-		if (product == 1) {
-			product1.setInventoryCost(inventoryCost);
-		} else if (product == 2) {
-			product2.setInventoryCost(inventoryCost);
-		} else if (product == 3) {
-			product3.setInventoryCost(inventoryCost);
+		if (product >= 0 && product < products.length) {
+			products[product].setInventoryCost(inventoryCost);
 		}
 	}
 
 	public double getSellingPrice(int product) {
-		if (product == 1) {
-			return product1.getSellingPrice();
-		} else if (product == 2) {
-			return product2.getSellingPrice();
-		} else if (product == 3) {
-			return product3.getSellingPrice();
+		if (product >= 0 && product < products.length) {
+			return products[product].getSellingPrice();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setSellingPrice(int product, double sellingPrice) {
-		if (product == 1) {
-			product1.setSellingPrice(sellingPrice);
-		} else if (product == 2) {
-			product2.setSellingPrice(sellingPrice);
-		} else if (product == 3) {
-			product3.setSellingPrice(sellingPrice);
+		if (product >= 0 && product < products.length) {
+			products[product].setSellingPrice(sellingPrice);
 		}
 	}
 
 	public double getProfit(int product) {
-		if (product == 1) {
-			return product1.getProfit();
-		} else if (product == 2) {
-			return product2.getProfit();
-		} else if (product == 3) {
-			return product3.getProfit();
+		if (product >= 0 && product < products.length) {
+			return products[product].getProfit();
 		} else {
 			return -1;
 		}
 	}
 
 	public void setProductProfit(int product, double profit) {
-		if (product == 1) {
-			product1.setProfit(profit);
-		} else if (product == 2) {
-			product2.setProfit(profit);
-		} else if (product == 3) {
-			product3.setProfit(profit);
+		if (product >= 0 && product < products.length) {
+			products[product].setProfit(profit);
 		}
 	}
 
@@ -295,35 +216,23 @@ public class Store {
 	 *         calculated or no product is found
 	 */
 	public int getMostProfitableProduct(int lastProduct) {
+		//TODO: comments and lots of testing
 		int mostProfitableProduct = -1;
-		if (availableProducts() >= AMOUNT_OF_PRODUCTS) {
+		if (numberOfProducts() > 0) {
 			return -1;
 		} else {
 			double mostProfitableAmount = Integer.MIN_VALUE;
 			double previousMostProfitableAmount = Integer.MIN_VALUE;
-			if (product1 != null && product1.isProfitCalculated()) {
-				if (lastProduct < 1) {
-					mostProfitableAmount = product1.getProfit();
-					mostProfitableProduct = 1;
-				} else if (lastProduct == 1) {
-					previousMostProfitableAmount = product1.getProfit();
-				}
-			}
-			if (product2 != null && product2.isProfitCalculated()) {
-				if (lastProduct < 2) {
-					if (product2.getProfit() > mostProfitableAmount || product2.getProfit() == previousMostProfitableAmount) {
-						mostProfitableAmount = product2.getProfit();
-						mostProfitableProduct = 2;
-					}
-				} else if (lastProduct == 2) {
-					previousMostProfitableAmount = product2.getProfit();
-				}
-			}
-			if (product3 != null && product3.isProfitCalculated() && lastProduct < 3) {
-				if (lastProduct < 3) {
-					if (product3.getProfit() > mostProfitableAmount || product3.getProfit() == previousMostProfitableAmount) {
-						mostProfitableAmount = product3.getProfit();
-						mostProfitableProduct = 3;
+			
+			for (int i = 0; i < products.length; i++) {
+				if (products[i] != null && products[i].isProfitCalculated()) {
+					if (lastProduct < i) {
+						if (products[i].getProfit() > mostProfitableAmount || products[i].getProfit() == previousMostProfitableAmount) {
+							mostProfitableAmount = products[i].getProfit();
+							mostProfitableProduct = i;
+						}
+					} else if (lastProduct == i) {
+						previousMostProfitableAmount = products[i].getProfit();
 					}
 				}
 			}
@@ -348,5 +257,44 @@ public class Store {
 
 		quantity = (int) Math.ceil(Math.sqrt((2 * setupCost * demandRate) / inventoryCost));
 		return quantity;
+	}
+	
+	public void sort(SortType type) {
+		if (type == SortType.NAME) {
+			sortByName();
+		} else if (type == SortType.DEMAND_RATE) {
+			sortByDemandRate();
+		}
+	}
+	
+	public String getProductNames() {
+		String names = "";
+		boolean firstProduct = true;
+		
+		for (int i = 0; i < products.length; i++) {
+			if (products[i] != null) {
+				if (firstProduct) {
+					firstProduct = false;
+				} else {
+					names += ", ";
+				}
+				names += products[i].getName();
+			}
+		}
+		return names;
+	}
+	
+	private void sortByName() {
+		//TODO: Implement sort - Extra 5 marks
+	}
+	
+	private void sortByDemandRate() {
+		//TODO: implement sort - Extra 5 marks
+	}
+	
+	@Override
+	public String toString() {
+		// TODO Complete the toString Method
+		return super.toString();
 	}
 }

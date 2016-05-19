@@ -81,4 +81,10 @@ public class Product {
 	public void setName(String name) {
 		this.name = name;
 	}
+	
+	@Override
+	public String toString() {
+		// TODO Complete the toString Method
+		return super.toString();
+	}
 }
