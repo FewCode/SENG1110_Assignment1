@@ -23,6 +23,10 @@ public class Store {
 		products = new Product[MINIMUM_PRODUCTS];
 	}
 	
+	public int numberOfPossibleProducts() {
+		return products.length;
+	}
+	
 	public int numberOfProducts(){
 		int amount = 0;
 		
@@ -190,6 +194,15 @@ public class Store {
 		if (product >= 0 && product < products.length) {
 			products[product].setProfit(profit);
 		}
+	}
+	
+	public boolean doesProductExist(int product) {
+		if (product >= 0 && product < products.length ) {
+			if (products[product] != null) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/**

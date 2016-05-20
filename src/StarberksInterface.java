@@ -17,8 +17,6 @@ public class StarberksInterface {
 	Scanner scanner = new Scanner(System.in);
 	private Store[] stores;
 	
-	@Deprecated
-	private Store store;
 	boolean exitProgram = false;
 
 	private void run() {
@@ -29,8 +27,6 @@ public class StarberksInterface {
 		stores = new Store[2];
 		stores[0] = new Store("callaghan");
 		stores[1] = new Store("lambton");
-		
-		store = new Store("test");
 
 		while (!exitProgram) {
 
@@ -92,7 +88,10 @@ public class StarberksInterface {
 	 */
 	private int waitForInput(int options, boolean exitClause) {
 		System.out.print("Option: ");
-		String input = scanner.nextLine();
+		String input = "";
+		while (input.isEmpty()) {
+			input = scanner.nextLine();
+		}
 		System.out.println("you have chosen \"" + input + "\"");
 
 		int chosenNumber = -1;
@@ -371,7 +370,31 @@ public class StarberksInterface {
 	
 	private void showAllProductData(int storeToUse) {
 		//Display all products in a table
-		
+		// make sure there are products to show
+		if (stores[storeToUse].numberOfProducts() <= 0) {
+			System.out.println("No products");
+		} else {
+			System.out.printf("%11s | %6s | %10s | %9s | %14s | %13s\n", "Name", "Demand", "Setup Cost", "Unit Cost", "Inventory Cost", "Selling Price");
+			System.out.printf("%11s-+-%6s-+-%10s-+-%9s-+-%14s-+-%13s\n", "-----------", "------", "----------", "---------", "--------------", "-------------");
+			for (int i = 0; i < stores[storeToUse].numberOfPossibleProducts(); i++) {
+				if (stores[storeToUse].doesProductExist(i)) {
+					String pName = stores[storeToUse].getProductName(i);
+					int pDemand = stores[storeToUse].getDemandRate(i);
+					double pSetupCost = stores[storeToUse].getSetupCost(i);
+					double pUnitCost = stores[storeToUse].getUnitCost(i);
+					double pInventoryCost = stores[storeToUse].getInventoryCost(i);
+					double pSellingPrice = stores[storeToUse].getSellingPrice(i);
+					System.out.printf("%11s | %6s | %10s | %9s | %14s | %13s\n", pName, pDemand, pSetupCost, pUnitCost, pInventoryCost, pSellingPrice);
+				}
+			}
+			System.out.println("Press Enter to Continue...");
+			try {
+				System.in.read();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}	
+			
+		}
 		
 		
 	}
@@ -381,27 +404,22 @@ public class StarberksInterface {
 		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("There is no Product Data available");
 		} else {
-			boolean exitReplenishmentStrategyLoop = false;
-			while (!exitReplenishmentStrategyLoop) {
-
-				// prompt the user for data then retrieve it
-				System.out.print("Would you like to see the replacement strategy for this product? ");
-				String pName = scanner.nextLine().toLowerCase();
-				
-				//TODO: own method?
-				boolean show = false;
-				switch (pName) {
-					case "1":
-					case "yes":
-					case "affirmitive": //TODO: spelling?
-						show = true;
-				}
-				
-				if (show) {
-					//TODO: make this work
-					replenishStrategy(storeToUse, product, (int) getValidDouble("Weeks", -1));
-					exitReplenishmentStrategyLoop = true;
-				}
+			// prompt the user for data then retrieve it
+			System.out.print("Would you like to see the replacement strategy for this product? ");
+			String pName = scanner.nextLine().toLowerCase();
+			
+			//TODO: own method?
+			boolean show = false;
+			switch (pName) {
+				case "1":
+				case "y":
+				case "yes":
+				case "affirmative": 
+					show = true;
+			}
+			
+			if (show) {
+				replenishStrategy(storeToUse, product, (int) getValidDouble("Weeks", -1));
 			}
 		}
 	}
@@ -412,8 +430,8 @@ public class StarberksInterface {
 	 * @param weeks the number of weeks this should continue
 	 */
 	private void replenishStrategy(int storeToUse, int productNumber, int weeks) {
-		int EOQ = store.calculateEOQ(productNumber);
-		int demandRate = store.getDemandRate(productNumber);
+		int EOQ = stores[storeToUse].calculateEOQ(productNumber);
+		int demandRate = stores[storeToUse].getDemandRate(productNumber);
 		int inventory = 0;
 		int totalOrder = 0;
 		int totalOrders = 0;
@@ -421,7 +439,7 @@ public class StarberksInterface {
 		
 		//display top of table
 		System.out.printf("%5s | %14s | %6s | %9s\n", "Week", "Quantity Order", "Demand", "Inventory");
-		
+		System.out.printf("%5s-+-%14s-+-%6s-+-%9s\n", "----", "--------------", "------", "---------");
 		//looping the number of weeks
 		for (int i = 0; i < weeks; i++) {
 			int order = 0;
@@ -444,13 +462,13 @@ public class StarberksInterface {
 		
 		
 		
-		double purchasePrice = (store.getSetupCost(productNumber) * totalOrders) + totalOrder * store.getUnitCost(productNumber);
-		double inventoryCost = totalInventory * store.getInventoryCost(productNumber);
+		double purchasePrice = (stores[storeToUse].getSetupCost(productNumber) * totalOrders) + totalOrder * stores[storeToUse].getUnitCost(productNumber);
+		double inventoryCost = totalInventory * stores[storeToUse].getInventoryCost(productNumber);
 		double totalCost = purchasePrice + inventoryCost;
 		System.out.println("Total Cost: $" + totalCost);
 		
-		double profit = (demandRate * weeks * store.getSellingPrice(productNumber)) - totalCost;
-		store.setProductProfit(productNumber, profit);
+		double profit = (demandRate * weeks * stores[storeToUse].getSellingPrice(productNumber)) - totalCost;
+		stores[storeToUse].setProductProfit(productNumber, profit);
 		System.out.println("Profit: $" + (new DecimalFormat("#.##")).format(profit));
 		System.out.println("Total Order: " + totalOrder);
 		System.out.println("EOQ: " + EOQ);
@@ -464,9 +482,8 @@ public class StarberksInterface {
 			}			
 		} else {
 			System.out.println("Profit was negative, please re-enter product data.");
-			//editProductData(productNumber, true);
+			editProductData(storeToUse, productNumber, true);
 		}
-		
 	}
 
 	/**
@@ -478,18 +495,19 @@ public class StarberksInterface {
 
 		System.out.println("Thank you for using our program!");
 
+		//TODO: check if needed.
 		//get the most
-		int mostProfitableProduct = store.getMostProfitableProduct();
-		while (mostProfitableProduct > 0) {
-			String productName = store.getProductName(mostProfitableProduct);
-			double profit = store.getProfit(mostProfitableProduct);
-			System.out.println(productName + " was the most profitable product with $" + (new DecimalFormat("#.##")).format(profit));
-			
-			//check for another round
-			mostProfitableProduct = store.getMostProfitableProduct(mostProfitableProduct);
+		for (int i  = 0; i < stores.length; i++) {
+			int mostProfitableProduct = stores[i].getMostProfitableProduct();
+			while (mostProfitableProduct > 0) {
+				String productName = stores[i].getProductName(mostProfitableProduct);
+				double profit = stores[i].getProfit(mostProfitableProduct);
+				System.out.println(productName + " was the most profitable product " + stores[i].NAME + " with $" + (new DecimalFormat("#.##")).format(profit));
+				
+				//check for another round
+				mostProfitableProduct = stores[i].getMostProfitableProduct(mostProfitableProduct);
+			}
 		}
-			
-		
 	}
 	
 	private int chooseStore(){
