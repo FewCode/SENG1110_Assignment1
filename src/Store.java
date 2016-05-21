@@ -1,8 +1,7 @@
-//TODO: update javaDoc
 /**
  * @author Alexander Brown
  * @studentID 3260691
- * @date 22/04/2016
+ * @date 22/05/2016
  * @file Store.java
  * Controls use of Product Objects and performs calculations 
  * @see Product
@@ -19,13 +18,22 @@ public class Store {
 		products = new Product[MINIMUM_PRODUCTS];
 	}
 	
+	/**
+	 * returns the number of spots for Products, used or not
+	 * @return the products array length
+	 */
 	public int numberOfPossibleProducts() {
 		return products.length;
 	}
 	
+	/**
+	 * calculates the number of valid products that are currently being used
+	 * @return the number of valid products that are currently being used
+	 */
 	public int numberOfProducts(){
 		int amount = 0;
 		
+		//loop through and increment on a non-null product
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null) {
 				amount++;
@@ -54,19 +62,22 @@ public class Store {
 	}
 
 	/**
-	 * Creates a product in the associated product slot with the name provided.
-	 * Will override any other product current there
+	 * adds a product to the first available spot. If there are no spots available, it will make room.
 	 * 
-	 * @param number
-	 *            the product slot to create a new product in
 	 * @param name
 	 *            the name of the new product
 	 * @return the slot of the product used or -1 if an error
 	 */
 	public int addProduct(String name) {
+		
+		//check that we are not at max capacity yet
 		if (numberOfProducts() == products.length) {
+			
+			//if we are going to at max capacity, make some room for the new product
 			resizeProductsArray(products.length + 1);
 		}
+		
+		//add the product to the next empty spot. and return its spot in a sorted array
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] == null) {
 				products[i] = new Product(name);
@@ -78,15 +89,23 @@ public class Store {
 	}
 
 	private void resizeProductsArray(int length) {
+		
+		//make new array
 		Product[] newProducts = new Product[length];
+		
+		//loop through both arrays
 		for (int i = 0; i < newProducts.length && i < products.length; i++) {
+			
+			//add old values to the new values
 			newProducts[i] = products[i];
 		}
+		
+		//overwrite the old array with the new array
 		products = newProducts;
 	}
 
 	/**
-	 * Removes the product in the slot indicated by nulling it
+	 * Removes the product in the slot indicated by nulling it. Also manages the products while doing so.
 	 * 
 	 * @param number
 	 *            the slot to remove the product
@@ -94,10 +113,10 @@ public class Store {
 	public void removeProduct(int number) {
 		if (number >= 0 && number < products.length) {
 			products[number] = null;
-		}
-		sortByName();
-		if (products.length > MINIMUM_PRODUCTS && products.length > numberOfProducts()) {
-			resizeProductsArray(numberOfProducts());
+			sortByName();
+			if (products.length > MINIMUM_PRODUCTS && products.length > numberOfProducts()) {
+				resizeProductsArray(numberOfProducts());
+			}
 		}
 	}
 
@@ -238,7 +257,6 @@ public class Store {
 	 *         calculated or no product is found
 	 */
 	public int getMostProfitableProduct(int lastProduct) {
-		//TODO: comments and lots of testing
 		int mostProfitableProduct = -1;
 		if (numberOfProducts() > 0) {
 			return -1;
@@ -281,12 +299,19 @@ public class Store {
 		return quantity;
 	}
 	
+	/**
+	 * Gets a list of all the current product names in a comma separated string
+	 * @return all the current product names in a comma separated string 
+	 */
 	public String getProductNames() {
 		String names = "";
 		boolean firstProduct = true;
 		
+		//loop through products
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null) {
+				
+				//dont add a comma before the first product
 				if (firstProduct) {
 					firstProduct = false;
 				} else {
@@ -298,10 +323,11 @@ public class Store {
 		return names;
 	}
 	
-	//TODO: find out where used or add to places to use
-	
-	private void sortByName() {
-		//Bubble sort! Also, handles for nulls
+	/**
+	 * Sorts the Products by the Names.
+	 */
+	public void sortByName() {
+		//Bubble sort by Name! Also, handles for nulls
 		Product aux;
 		for (int i = products.length - 1; i >= 0; i--) {
 			for (int j=0; j<i; j++) {
@@ -316,15 +342,17 @@ public class Store {
 		}
 	}
 	
-	private void sortByDemandRate() {
-		//TODO: implement sort - Extra 5 marks
-		//TODO: test
+	/**
+	 * Sorts the Products by the Demand Rate.
+	 */
+	public void sortByDemandRate() {
+		//Bubble sort by Demand Rate! Also, handles for nulls
 		Product aux;
 		for (int i = products.length - 1; i >= 0; i--) {
 			for (int j=0; j<i; j++) {
 				if (products[j+1] == null) {
 					
-				} else if (products[j] == null || products[j].getDemandRate() > products[j+1].getDemandRate()) { 
+				} else if (products[j] == null || products[j].getDemandRate() < products[j+1].getDemandRate()) { 
 		 			aux = products[j]; 
 		 			products[j] = products[j+1]; 
 		 			products[j+1] = aux; 

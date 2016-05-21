@@ -1,7 +1,7 @@
 /**
  * @author Alexander Brown
  * @studentID 3260691
- * @date 22/04/2016
+ * @date 22/05/2016
  * @file Product.java
  * Object that holds data for an item.
  */
