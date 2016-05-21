@@ -17,6 +17,8 @@ public class Product {
 	private boolean profitCalculated = false;
 	private double profit;
 	
+	public Product(){}
+	
 	public Product(String name) {
 		this.name = name;
 	}
@@ -84,7 +86,6 @@ public class Product {
 	
 	@Override
 	public String toString() {
-		// TODO Complete the toString Method
-		return super.toString();
+		return this.name;
 	}
 }

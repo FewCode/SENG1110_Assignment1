@@ -1,22 +1,28 @@
+import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.text.DecimalFormat;
 import java.util.InputMismatchException;
 import java.util.Scanner;
 
-
 //TODO: make sure comments
-//TODO: scanner use must use "nextLine" rather than "nextInt" or "nextString"
 /**
  * @author Alexander Brown
  * @studentID 3260691
  * @date 22/04/2016
- * @file StarberksInterface.java
- * Interface for the program. Controls flow and deals with Input and Output
+ * @file StarberksInterface.java Interface for the program. Controls flow and
+ *       deals with Input and Output
  */
 public class StarberksInterface {
+
+	public final String FILE_EXTENSION = ".dat";
+
 	Scanner scanner = new Scanner(System.in);
-	private Store[] stores;
 	
+	//I had permission to use an array for both stores from Alex Biddulph via the blackboard discisson board
+	private Store[] stores;
+
 	boolean exitProgram = false;
 
 	private void run() {
@@ -33,32 +39,31 @@ public class StarberksInterface {
 			// show the menu to the user
 			displayMenu();
 
-			switch (waitForInput(5, true)){
+			switch (waitForInput(5, true)) {
 				case 1:
 					runSecondTier(chooseStore());
 					break;
 				case 2:
-					//TODO: Implement - Display Stores
+					displayStores();
 					break;
 				case 3:
-					//TODO: Implement - Open
+					openProcess();
 					break;
 				case 4:
-					//TODO: Implement - Save
+					saveProcess();
 					break;
 				case 5:
 					exitProgram();
 					break;
-					
+
 			}
 		}
 	}
 
-	private void runSecondTier(int storeToUse){
+	private void runSecondTier(int storeToUse) {
 		boolean exitStore = false;
 		while (!exitStore) {
 			displayStoreMenu();
-			//TODO: implement menu
 			switch (waitForInput(5, true)) {
 				case 1:
 					inputProductData(storeToUse);
@@ -78,7 +83,7 @@ public class StarberksInterface {
 			}
 		}
 	}
-	
+
 	/**
 	 * @param options
 	 *            - the amount of options that you wish to display with a
@@ -182,7 +187,7 @@ public class StarberksInterface {
 					productNumber = stores[storeToUse].addProduct(pName);
 					editProductData(storeToUse, productNumber, false);
 					exitProductDataLoop = true;
-				} 
+				}
 			}
 		}
 	}
@@ -230,46 +235,46 @@ public class StarberksInterface {
 		if (product >= 0) {
 			boolean validEOQ = false;
 			do {
-				//if we are outputting data. get the default value, set it so we can use it in a prompt later. If not, just set to -1
+				// if we are outputting data. get the default value, set it so
+				// we can use it in a prompt later. If not, just set to -1
 				int demandRate = outputCurrentValues ? stores[storeToUse].getDemandRate(product) : -1;
 				double setupCost = outputCurrentValues ? stores[storeToUse].getSetupCost(product) : -1;
 				double unitCost = outputCurrentValues ? stores[storeToUse].getUnitCost(product) : -1;
 				double inventoryCost = outputCurrentValues ? stores[storeToUse].getInventoryCost(product) : -1;
 				double sellingPrice = outputCurrentValues ? stores[storeToUse].getSellingPrice(product) : -1;
-				
+
 				System.out.println("Editing product: " + stores[storeToUse].getProductName(product));
-				
-				//get data from users
+
+				// get data from users
 				stores[storeToUse].setDemandRate(product, (int) Math.round(getValidDouble("Demand Rate", demandRate)));
 				stores[storeToUse].setSetupCost(product, getValidDouble("Setup Cost", setupCost));
 				stores[storeToUse].setUnitCost(product, getValidDouble("Unit Cost", unitCost));
 				stores[storeToUse].setInventoryCost(product, getValidDouble("Inventory Cost", inventoryCost));
 				stores[storeToUse].setSellingPrice(product, getValidDouble("Selling Price", sellingPrice));
-				
-				//validate EOQ
-				if (stores[storeToUse].calculateEOQ(product) > stores[storeToUse].getDemandRate(product)){
+
+				// validate EOQ
+				if (stores[storeToUse].calculateEOQ(product) > stores[storeToUse].getDemandRate(product)) {
 					validEOQ = true;
 				} else {
 					System.out.println("It is not possible to have a replacement strategy with the inputs given. Please enter the data again.");
 				}
-				
+
 			} while (!validEOQ);
-			
+
 		}
 	}
 
-	
 	private void deleteProduct(int storeToUse) {
 		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("No products");
 		} else {
 			System.out.println("Products: " + stores[storeToUse].getProductNames());
 			System.out.print("Please input the product name you want to delete: ");
-			
+
 			String input = scanner.nextLine().toLowerCase();
 			int product = stores[storeToUse].findProduct(input);
 			if (product >= 0) {
-				
+
 				stores[storeToUse].removeProduct(product);
 				System.out.println("The product was deleted");
 			} else {
@@ -277,7 +282,7 @@ public class StarberksInterface {
 			}
 		}
 	}
-	
+
 	/**
 	 * Gets a valid double from the user. The method will loop until this is
 	 * achieved
@@ -305,7 +310,7 @@ public class StarberksInterface {
 
 			// get the input
 			String userInput = scanner.nextLine();
-			
+
 			try {
 				Double input = Double.parseDouble(userInput);
 				// validate input
@@ -317,7 +322,7 @@ public class StarberksInterface {
 			} catch (Exception e) {
 				System.out.println("Please input a valid number.");
 			}
-			
+
 		}
 		return 0;
 	}
@@ -330,23 +335,19 @@ public class StarberksInterface {
 		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("No products");
 		} else {
-			boolean exitProductDataLoop = false;
-			while (!exitProductDataLoop) {
-				System.out.println("Products: " + stores[storeToUse].getProductNames());
-				System.out.print("Please input the product name you want to display: ");
-				
-				String pName = scanner.nextLine().toLowerCase();
+			System.out.println("Products: " + stores[storeToUse].getProductNames());
+			System.out.print("Please input the product name you want to display: ");
 
-				// validate product
-				int productNumber = stores[storeToUse].findProduct(pName);
-				if (productNumber < 0) {
-					System.out.println("Could not find product \"" + pName + "\", please try again.");
-				} else {
-					outputProductData(storeToUse, productNumber);
-					
-					showReplenishStrategy(storeToUse, productNumber);
-					exitProductDataLoop = true;
-				}
+			String pName = scanner.nextLine().toLowerCase();
+
+			// validate product
+			int productNumber = stores[storeToUse].findProduct(pName);
+			if (productNumber < 0) {
+				System.out.println("The product does not exist");
+			} else {
+				outputProductData(storeToUse, productNumber);
+
+				showReplenishStrategy(storeToUse, productNumber);
 			}
 		}
 	}
@@ -367,9 +368,9 @@ public class StarberksInterface {
 		System.out.println("Selling Price: " + stores[storeToUse].getSellingPrice(productNumber));
 
 	}
-	
+
 	private void showAllProductData(int storeToUse) {
-		//Display all products in a table
+		// Display all products in a table
 		// make sure there are products to show
 		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("No products");
@@ -392,32 +393,30 @@ public class StarberksInterface {
 				System.in.read();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}	
-			
+			}
+
 		}
-		
-		
+
 	}
 
 	private void showReplenishStrategy(int storeToUse, int product) {
-		//TODO: test this lots
+		// TODO: test this lots
 		if (stores[storeToUse].numberOfProducts() <= 0) {
 			System.out.println("There is no Product Data available");
 		} else {
 			// prompt the user for data then retrieve it
 			System.out.print("Would you like to see the replacement strategy for this product? ");
 			String pName = scanner.nextLine().toLowerCase();
-			
-			//TODO: own method?
+
 			boolean show = false;
 			switch (pName) {
 				case "1":
 				case "y":
 				case "yes":
-				case "affirmative": 
+				case "affirmative":
 					show = true;
 			}
-			
+
 			if (show) {
 				replenishStrategy(storeToUse, product, (int) getValidDouble("Weeks", -1));
 			}
@@ -425,9 +424,13 @@ public class StarberksInterface {
 	}
 
 	/**
-	 * Calculates replenish strategy and displays a table of the strategy to the user
-	 * @param productNumber the product to use
-	 * @param weeks the number of weeks this should continue
+	 * Calculates replenish strategy and displays a table of the strategy to the
+	 * user
+	 * 
+	 * @param productNumber
+	 *            the product to use
+	 * @param weeks
+	 *            the number of weeks this should continue
 	 */
 	private void replenishStrategy(int storeToUse, int productNumber, int weeks) {
 		int EOQ = stores[storeToUse].calculateEOQ(productNumber);
@@ -436,14 +439,14 @@ public class StarberksInterface {
 		int totalOrder = 0;
 		int totalOrders = 0;
 		int totalInventory = 0;
-		
-		//display top of table
+
+		// display top of table
 		System.out.printf("%5s | %14s | %6s | %9s\n", "Week", "Quantity Order", "Demand", "Inventory");
 		System.out.printf("%5s-+-%14s-+-%6s-+-%9s\n", "----", "--------------", "------", "---------");
-		//looping the number of weeks
+		// looping the number of weeks
 		for (int i = 0; i < weeks; i++) {
 			int order = 0;
-			
+
 			if (inventory - demandRate < 0) {
 				order = EOQ;
 				int demandWeeks = demandRate * (weeks - i);
@@ -456,17 +459,15 @@ public class StarberksInterface {
 			}
 			inventory -= demandRate;
 			totalInventory += inventory;
-			
+
 			System.out.printf("%5d | %14d | %6d | %9d\n", i + 1, order, demandRate, inventory);
 		}
-		
-		
-		
+
 		double purchasePrice = (stores[storeToUse].getSetupCost(productNumber) * totalOrders) + totalOrder * stores[storeToUse].getUnitCost(productNumber);
 		double inventoryCost = totalInventory * stores[storeToUse].getInventoryCost(productNumber);
 		double totalCost = purchasePrice + inventoryCost;
 		System.out.println("Total Cost: $" + totalCost);
-		
+
 		double profit = (demandRate * weeks * stores[storeToUse].getSellingPrice(productNumber)) - totalCost;
 		stores[storeToUse].setProductProfit(productNumber, profit);
 		System.out.println("Profit: $" + (new DecimalFormat("#.##")).format(profit));
@@ -474,12 +475,12 @@ public class StarberksInterface {
 		System.out.println("EOQ: " + EOQ);
 		if (profit >= 0) {
 			System.out.println("Press Enter to Continue...");
-			
+
 			try {
 				System.in.read();
 			} catch (IOException e) {
 				e.printStackTrace();
-			}			
+			}
 		} else {
 			System.out.println("Profit was negative, please re-enter product data.");
 			editProductData(storeToUse, productNumber, true);
@@ -495,33 +496,33 @@ public class StarberksInterface {
 
 		System.out.println("Thank you for using our program!");
 
-		//TODO: check if needed.
-		//get the most
-		for (int i  = 0; i < stores.length; i++) {
+		// TODO: check if needed.
+		// get the most
+		for (int i = 0; i < stores.length; i++) {
 			int mostProfitableProduct = stores[i].getMostProfitableProduct();
 			while (mostProfitableProduct > 0) {
 				String productName = stores[i].getProductName(mostProfitableProduct);
 				double profit = stores[i].getProfit(mostProfitableProduct);
-				System.out.println(productName + " was the most profitable product " + stores[i].NAME + " with $" + (new DecimalFormat("#.##")).format(profit));
-				
-				//check for another round
+				System.out.println(productName + " was the most profitable product " + stores[i] + " with $" + (new DecimalFormat("#.##")).format(profit));
+
+				// check for another round
 				mostProfitableProduct = stores[i].getMostProfitableProduct(mostProfitableProduct);
 			}
 		}
 	}
-	
-	private int chooseStore(){
+
+	private int chooseStore() {
 		boolean validInput = false;
 		int chosenStore = -1;
-		
-		//start loop to get user input
+
+		// start loop to get user input
 		while (!validInput) {
-			
-			//ask the user for the store
-			System.out.print("Enter store to chose {" + stores[0].NAME + "," + stores[1].NAME + "}: ");
+
+			// ask the user for the store
+			System.out.print("Enter store to chose {" + stores[0] + "," + stores[1] + "}: ");
 			String storeToPick = scanner.nextLine().toLowerCase();
-			
-			//validate input
+
+			// validate input
 			if (stores[0].NAME.equals(storeToPick)) {
 				chosenStore = 0;
 				validInput = true;
@@ -529,13 +530,209 @@ public class StarberksInterface {
 				chosenStore = 1;
 				validInput = true;
 			} else {
-				//invalid input - error
+				// invalid input - error
 				System.out.println("Please enter a valid store.");
 			}
 		}
-		
-		//return the store that the user chose
+
+		// return the store that the user chose
 		return chosenStore;
+	}
+
+	private void openProcess() {
+		String fileName = "";
+		
+		//prompt the user and get the file they ask for
+		System.out.print("Enter file name to open (without extension): ");
+		fileName = scanner.nextLine();
+		fileName += FILE_EXTENSION;
+
+		try {
+			//setup new file
+			Scanner inputStream = new Scanner(new File(fileName));
+
+			//read data in from file
+			readFileIn(inputStream);
+			inputStream.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("The file does not exist");
+		}
+	}
+
+	//assumes file is real and ready
+	private void readFileIn(Scanner inputStream) {
+		
+		//setup some variables
+		int store = -1;	//tracks the store
+		int productsAdded = 0; //tracks the number of products added to a store
+		String pName = ""; //tracks a products name, also used in conjunction with a blank line to see when a product data has been imported
+		int pDemand = 0;
+		double pSetupCost = 0;
+		double pUnitCost = 0;
+		double pInventoryCost = 0;
+		double pSellingPrice = 0;
+
+		//loops through file as long as their are lines
+		while (inputStream.hasNextLine()) {
+			String line = inputStream.nextLine();
+
+			//check for an empty line
+			if (!line.isEmpty()) {
+				
+				//every line that is not blank has a ":" as the separator
+				String[] items = line.split(":");
+				
+				//if the line doesn't have a value after the separator, then its a new store
+				if (items.length <= 1) {
+					
+					// Check store
+					for (int i = 0; i < stores.length; i++) {
+						
+						//if the store is the same as the one in the file
+						if (stores[i].NAME.equalsIgnoreCase(items[0])) {
+							if (store != -1 && productsAdded > 0) {
+								System.out.println("Updated " + productsAdded + " products for the " + stores[store] + " store.");
+							}
+							store = i; // set store
+							i = stores.length; // Exit loop
+							productsAdded = 0;
+						}
+					}
+				} else {
+					if (store != -1) {
+						
+						//use the label on the line to determine what the value is and update the value.
+						switch (items[0].toLowerCase().trim()) {
+							case "name":
+								pName = items[1].toLowerCase().trim();
+								break;
+							case "demand rate":
+								pDemand = Integer.parseInt(items[1].trim());
+								break;
+							case "setup cost":
+								pSetupCost = Double.parseDouble(items[1].trim());
+								break;
+							case "unit cost":
+								pUnitCost = Double.parseDouble(items[1].trim());
+								break;
+							case "inventory cost":
+								pInventoryCost = Double.parseDouble(items[1].trim());
+								break;
+							case "selling price":
+								pSellingPrice = Double.parseDouble(items[1].trim());
+								break;
+						}
+					} else {
+						System.out.println("Invalid line format! A store must preceed a product!");
+					}
+				}
+			} else {
+				
+				// Save product if name not empty
+				if (!pName.isEmpty()) {
+					
+					//add product and its details
+					int product = stores[store].addProduct(pName);
+					stores[store].setDemandRate(product, pDemand);
+					stores[store].setSetupCost(product, pSetupCost);
+					stores[store].setUnitCost(product, pUnitCost);
+					stores[store].setInventoryCost(product, pInventoryCost);
+					stores[store].setSellingPrice(product, pSellingPrice);
+					
+					//reset name so we know its a new product
+					pName = "";
+					productsAdded++;
+				}
+			}
+		}
+		
+		if (store != -1) {
+			
+			//product hasn't been added
+			if (!pName.isEmpty() && stores[store].findProduct(pName) == -1) {
+				
+				//add product and its details
+				int product = stores[store].addProduct(pName);
+				stores[store].setDemandRate(product, pDemand);
+				stores[store].setSetupCost(product, pSetupCost);
+				stores[store].setUnitCost(product, pUnitCost);
+				stores[store].setInventoryCost(product, pInventoryCost);
+				stores[store].setSellingPrice(product, pSellingPrice);
+				productsAdded++;
+			}
+			
+			
+			if (productsAdded > 0) {
+				//there were products updated
+				System.out.println("Updated " + productsAdded + " products for the " + stores[store] + " store.");				
+			}
+		}
+		
+	}
+
+	private void saveProcess() {
+String fileName = "";
+		
+		//prompt the user and get the file they ask for
+		System.out.print("Enter file name to save to (without extension): ");
+		fileName = scanner.nextLine();
+		fileName += FILE_EXTENSION;
+
+		try {
+			PrintWriter outputStream = new PrintWriter(fileName);
+
+			//save store data to file
+			saveFile(outputStream);
+			outputStream.close();
+		} catch (FileNotFoundException e) {
+			System.out.println("The file does not exist");
+		}
+	}
+	
+	
+
+	private void saveFile(PrintWriter outputStream) {
+		
+		for (int store = 0; store < stores.length; store++) {
+			if (store != 0) {
+				outputStream.println();
+			}
+			outputStream.println(stores[store] + ":");
+			
+			int productsSaved = 0;
+			for (int product = 0; product < stores[store].numberOfPossibleProducts(); product++) {
+				if (stores[store].doesProductExist(product)) {
+					outputStream.println();
+					DecimalFormat decimalFormat = new DecimalFormat("#.#########");
+					
+					outputStream.println("Name: " + stores[store].getProductName(product));
+					outputStream.println("demand rate: " + stores[store].getDemandRate(product));
+					outputStream.println("setup cost: " + decimalFormat.format(stores[store].getSetupCost(product)));
+					outputStream.println("unit cost: " + decimalFormat.format(stores[store].getUnitCost(product)));
+					outputStream.println("inventory cost: " + decimalFormat.format(stores[store].getInventoryCost(product)));
+					outputStream.println("selling price: " + decimalFormat.format(stores[store].getSellingPrice(product)));
+					
+					productsSaved++;
+				}
+			}
+			System.out.println(productsSaved + " Products have been saved for the " + stores[store] + " store.");
+		}
+	}
+
+	private void displayStores(){
+		for (int store = 0; store < stores.length; store++) {
+			System.out.println("Store: " + stores[store]);
+			int storeProducts = stores[store].numberOfProducts();
+			System.out.println("\tNumber of products: " + storeProducts);
+			if (storeProducts > 0) {
+				int productNumber = 1;
+				for (int product = 0; product < stores[store].numberOfPossibleProducts(); product++){
+					if (stores[store].doesProductExist(product)) {
+						System.out.println("\tProduct " + productNumber + ": " + stores[store].getProductName(product));
+					}
+				}
+			}
+		}
 	}
 	
 	/**
@@ -548,7 +745,7 @@ public class StarberksInterface {
 		System.out.println("4.\tSave");
 		System.out.println("5.\tExit");
 	}
-	
+
 	private void displayStoreMenu() {
 		System.out.println("1.\tAdd/Edit product");
 		System.out.println("2.\tDelete product");

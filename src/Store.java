@@ -13,10 +13,6 @@ public class Store {
 	public final String NAME;
 	
 	private Product[] products;
-
-	public enum SortType{
-		NAME, DEMAND_RATE
-	}
 	
 	public Store(String name) {
 		this.NAME = name.toLowerCase();
@@ -74,15 +70,19 @@ public class Store {
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] == null) {
 				products[i] = new Product(name);
-				return i;
+				sortByName();
+				return findProduct(name);
 			}
 		}
 		return -1;
 	}
 
 	private void resizeProductsArray(int length) {
-		// TODO resize array to size given
-		
+		Product[] newProducts = new Product[length];
+		for (int i = 0; i < newProducts.length && i < products.length; i++) {
+			newProducts[i] = products[i];
+		}
+		products = newProducts;
 	}
 
 	/**
@@ -92,9 +92,12 @@ public class Store {
 	 *            the slot to remove the product
 	 */
 	public void removeProduct(int number) {
-		//TODO: find a better way. Possible of resizing array if greater than the minimum size
 		if (number >= 0 && number < products.length) {
 			products[number] = null;
+		}
+		sortByName();
+		if (products.length > MINIMUM_PRODUCTS && products.length > numberOfProducts()) {
+			resizeProductsArray(numberOfProducts());
 		}
 	}
 
@@ -196,6 +199,12 @@ public class Store {
 		}
 	}
 	
+	/**
+	 * Checks to see if a product exists and returns the result
+	 * @param product the product you wish to check
+	 * @return true if the product exists or false if not
+	 * @see Product
+	 */
 	public boolean doesProductExist(int product) {
 		if (product >= 0 && product < products.length ) {
 			if (products[product] != null) {
@@ -272,14 +281,6 @@ public class Store {
 		return quantity;
 	}
 	
-	public void sort(SortType type) {
-		if (type == SortType.NAME) {
-			sortByName();
-		} else if (type == SortType.DEMAND_RATE) {
-			sortByDemandRate();
-		}
-	}
-	
 	public String getProductNames() {
 		String names = "";
 		boolean firstProduct = true;
@@ -291,23 +292,48 @@ public class Store {
 				} else {
 					names += ", ";
 				}
-				names += products[i].getName();
+				names += products[i];
 			}
 		}
 		return names;
 	}
 	
+	//TODO: find out where used or add to places to use
+	
 	private void sortByName() {
-		//TODO: Implement sort - Extra 5 marks
+		//Bubble sort! Also, handles for nulls
+		Product aux;
+		for (int i = products.length - 1; i >= 0; i--) {
+			for (int j=0; j<i; j++) {
+				if (products[j+1] == null) {
+					
+				} else if (products[j] == null || products[j].getName().compareToIgnoreCase(products[j+1].getName()) > 0) { 
+		 			aux = products[j]; 
+		 			products[j] = products[j+1]; 
+		 			products[j+1] = aux; 
+				}
+			}
+		}
 	}
 	
 	private void sortByDemandRate() {
 		//TODO: implement sort - Extra 5 marks
+		//TODO: test
+		Product aux;
+		for (int i = products.length - 1; i >= 0; i--) {
+			for (int j=0; j<i; j++) {
+				if (products[j+1] == null) {
+					
+				} else if (products[j] == null || products[j].getDemandRate() > products[j+1].getDemandRate()) { 
+		 			aux = products[j]; 
+		 			products[j] = products[j+1]; 
+		 			products[j+1] = aux; 
+				}
+			}
+		}
 	}
 	
-	@Override
 	public String toString() {
-		// TODO Complete the toString Method
-		return super.toString();
+		return NAME;
 	}
 }
