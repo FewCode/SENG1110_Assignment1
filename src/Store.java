@@ -2,47 +2,47 @@
  * @author Alexander Brown
  * @studentID 3260691
  * @date 22/05/2016
- * @file Store.java
- * Controls use of Product Objects and performs calculations 
+ * @file Store.java Controls use of Product Objects and performs calculations
  * @see Product
  */
 public class Store {
 
 	public final int MINIMUM_PRODUCTS = 3;
 	public final String NAME;
-	
+
 	private Product[] products;
-	
+
 	public Store(String name) {
 		this.NAME = name.toLowerCase();
 		products = new Product[MINIMUM_PRODUCTS];
 	}
-	
+
 	/**
 	 * returns the number of spots for Products, used or not
+	 * 
 	 * @return the products array length
 	 */
 	public int numberOfPossibleProducts() {
 		return products.length;
 	}
-	
+
 	/**
 	 * calculates the number of valid products that are currently being used
+	 * 
 	 * @return the number of valid products that are currently being used
 	 */
-	public int numberOfProducts(){
+	public int numberOfProducts() {
 		int amount = 0;
-		
-		//loop through and increment on a non-null product
+
+		// loop through and increment on a non-null product
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null) {
 				amount++;
 			}
 		}
-		
+
 		return amount;
 	}
-
 
 	/**
 	 * Searches the products to find if there is a matching name (case
@@ -62,22 +62,25 @@ public class Store {
 	}
 
 	/**
-	 * adds a product to the first available spot. If there are no spots available, it will make room.
+	 * adds a product to the first available spot. If there are no spots
+	 * available, it will make room.
 	 * 
 	 * @param name
 	 *            the name of the new product
 	 * @return the slot of the product used or -1 if an error
 	 */
 	public int addProduct(String name) {
-		
-		//check that we are not at max capacity yet
+
+		// check that we are not at max capacity yet
 		if (numberOfProducts() == products.length) {
-			
-			//if we are going to at max capacity, make some room for the new product
+
+			// if we are going to at max capacity, make some room for the new
+			// product
 			resizeProductsArray(products.length + 1);
 		}
-		
-		//add the product to the next empty spot. and return its spot in a sorted array
+
+		// add the product to the next empty spot. and return its spot in a
+		// sorted array
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] == null) {
 				products[i] = new Product(name);
@@ -89,23 +92,24 @@ public class Store {
 	}
 
 	private void resizeProductsArray(int length) {
-		
-		//make new array
+
+		// make new array
 		Product[] newProducts = new Product[length];
-		
-		//loop through both arrays
+
+		// loop through both arrays
 		for (int i = 0; i < newProducts.length && i < products.length; i++) {
-			
-			//add old values to the new values
+
+			// add old values to the new values
 			newProducts[i] = products[i];
 		}
-		
-		//overwrite the old array with the new array
+
+		// overwrite the old array with the new array
 		products = newProducts;
 	}
 
 	/**
-	 * Removes the product in the slot indicated by nulling it. Also manages the products while doing so.
+	 * Removes the product in the slot indicated by nulling it. Also manages the
+	 * products while doing so.
 	 * 
 	 * @param number
 	 *            the slot to remove the product
@@ -217,15 +221,17 @@ public class Store {
 			products[product].setProfit(profit);
 		}
 	}
-	
+
 	/**
 	 * Checks to see if a product exists and returns the result
-	 * @param product the product you wish to check
+	 * 
+	 * @param product
+	 *            the product you wish to check
 	 * @return true if the product exists or false if not
 	 * @see Product
 	 */
 	public boolean doesProductExist(int product) {
-		if (product >= 0 && product < products.length ) {
+		if (product >= 0 && product < products.length) {
 			if (products[product] != null) {
 				return true;
 			}
@@ -263,7 +269,7 @@ public class Store {
 		} else {
 			double mostProfitableAmount = Integer.MIN_VALUE;
 			double previousMostProfitableAmount = Integer.MIN_VALUE;
-			
+
 			for (int i = 0; i < products.length; i++) {
 				if (products[i] != null && products[i].isProfitCalculated()) {
 					if (lastProduct < i) {
@@ -298,20 +304,21 @@ public class Store {
 		quantity = (int) Math.ceil(Math.sqrt((2 * setupCost * demandRate) / inventoryCost));
 		return quantity;
 	}
-	
+
 	/**
 	 * Gets a list of all the current product names in a comma separated string
-	 * @return all the current product names in a comma separated string 
+	 * 
+	 * @return all the current product names in a comma separated string
 	 */
 	public String getProductNames() {
 		String names = "";
 		boolean firstProduct = true;
-		
-		//loop through products
+
+		// loop through products
 		for (int i = 0; i < products.length; i++) {
 			if (products[i] != null) {
-				
-				//dont add a comma before the first product
+
+				// dont add a comma before the first product
 				if (firstProduct) {
 					firstProduct = false;
 				} else {
@@ -322,45 +329,45 @@ public class Store {
 		}
 		return names;
 	}
-	
+
 	/**
 	 * Sorts the Products by the Names.
 	 */
 	public void sortByName() {
-		//Bubble sort by Name! Also, handles for nulls
+		// Bubble sort by Name! Also, handles for nulls
 		Product aux;
 		for (int i = products.length - 1; i >= 0; i--) {
-			for (int j=0; j<i; j++) {
-				if (products[j+1] == null) {
-					
-				} else if (products[j] == null || products[j].getName().compareToIgnoreCase(products[j+1].getName()) > 0) { 
-		 			aux = products[j]; 
-		 			products[j] = products[j+1]; 
-		 			products[j+1] = aux; 
+			for (int j = 0; j < i; j++) {
+				if (products[j + 1] == null) {
+
+				} else if (products[j] == null || products[j].getName().compareToIgnoreCase(products[j + 1].getName()) > 0) {
+					aux = products[j];
+					products[j] = products[j + 1];
+					products[j + 1] = aux;
 				}
 			}
 		}
 	}
-	
+
 	/**
 	 * Sorts the Products by the Demand Rate.
 	 */
 	public void sortByDemandRate() {
-		//Bubble sort by Demand Rate! Also, handles for nulls
+		// Bubble sort by Demand Rate! Also, handles for nulls
 		Product aux;
 		for (int i = products.length - 1; i >= 0; i--) {
-			for (int j=0; j<i; j++) {
-				if (products[j+1] == null) {
-					
-				} else if (products[j] == null || products[j].getDemandRate() < products[j+1].getDemandRate()) { 
-		 			aux = products[j]; 
-		 			products[j] = products[j+1]; 
-		 			products[j+1] = aux; 
+			for (int j = 0; j < i; j++) {
+				if (products[j + 1] == null) {
+
+				} else if (products[j] == null || products[j].getDemandRate() < products[j + 1].getDemandRate()) {
+					aux = products[j];
+					products[j] = products[j + 1];
+					products[j + 1] = aux;
 				}
 			}
 		}
 	}
-	
+
 	public String toString() {
 		return NAME;
 	}
